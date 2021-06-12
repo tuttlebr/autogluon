@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  autogluon:
+    image: tuttleb/autogluon:${AUTOGLUON_VERSION}-rapids${RAPIDS_VERSION}-cuda${CUDA_VERSION}-jupyter-${BUILD_TYPE}-py${PYTHON_VERSION}
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+        - AUTOGLUON_VERSION=${AUTOGLUON_VERSION}
+        RAPIDS_VERSION=${RAPIDS_VERSION}
+        CUDA_VERSION=${CUDA_VERSION}
+        BUILD_TYPE=${BUILD_TYPE}
+        LINUX_VERSION=${LINUX_VERSION}
+        PYTHON_VERSION=${PYTHON_VERSION}
+      labels:
+        - "com.example.cuda=${CUDA_VERSION}"
