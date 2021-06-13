@@ -28,10 +28,10 @@ services:
       labels:
         - "com.example.cuda=${CUDA_COMPAT}"
         - "com.example.cudnn=${CUDNN_COMPAT}"
-      deploy:
-        resources:
-          reservations:
-            devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
