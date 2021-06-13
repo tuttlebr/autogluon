@@ -1,0 +1,4 @@
+seaborn
+jupyter
+jupyterlab
+autogluon

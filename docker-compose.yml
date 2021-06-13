@@ -1,16 +1,30 @@
+# 0.2.0-rapids0.19-cuda10.2-framework-ubuntu18.04-py3.7
+#  ^          ^        ^    ^          ^          ^
+#  |          |        |    type       |          python version
+#  |          |        |               |
+#  |          |        cuda version    |
+#  |          |                        |
+#  |          RAPIDS version           linux version
+#  |
+#  AutoGluon version
+
 version: "3.9"
 services:
   autogluon:
-    image: tuttleb/autogluon:${AUTOGLUON_VERSION}-rapids${RAPIDS_VERSION}-cuda${CUDA_VERSION}-jupyter-${BUILD_TYPE}-py${PYTHON_VERSION}
+    image: tuttlebr/autogluon:rapids-cuda${CUDA_VERSION}-${BUILD_TYPE}-${BASE_OS}
+    volumes:
+      - type: bind
+        source: .dev
+        target: /home/image-classification
+    ports:
+      - "8888:8888"
     build:
-      context: ./
+      context: ./src
       dockerfile: ./Dockerfile
       args:
-        - AUTOGLUON_VERSION=${AUTOGLUON_VERSION}
-        RAPIDS_VERSION=${RAPIDS_VERSION}
-        CUDA_VERSION=${CUDA_VERSION}
-        BUILD_TYPE=${BUILD_TYPE}
-        LINUX_VERSION=${LINUX_VERSION}
-        PYTHON_VERSION=${PYTHON_VERSION}
+        - BASE_IMAGE_ARG=nvcr.io/nvidia/rapidsai/rapidsai:cuda${CUDA_VERSION}-${BUILD_TYPE}-${BASE_OS}
+        - MXNET=${MXNET}
+        - EXPERIMENT_TYPE=image-classification
       labels:
-        - "com.example.cuda=${CUDA_VERSION}"
+        - "com.example.cuda=${CUDA_COMPAT}"
+        - "com.example.cudnn=${CUDNN_COMPAT}"
