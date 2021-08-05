@@ -2,20 +2,25 @@ ARG BASE_IMAGE_ARG
 
 FROM ${BASE_IMAGE_ARG}
 
-ARG MXNET
+ENV DEBIAN_FRONTEND=noninteractive
 
-ENV DEBIAN_FRONTEND noninteractive
-
-SHELL ["/bin/bash", "-c"]
-
-WORKDIR /autogluon
-
-COPY object-detection.py .
-
-RUN source activate rapids && \
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+    git \
+    python3 \
+    python3-opencv \
+    python3-dev \
+    python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
     python3 -m pip install -U pip && \
-    python3 -m pip install -U setuptools wheel && \
-    python3 -m pip install -U "${MXNET}" && \
-    python3 -m pip install autogluon
+    python3 -m pip install -U setuptools wheel opencv-python && \
+    python3 -m pip install -U "mxnet_cu112<2.0.0" && \
+    git clone https://github.com/awslabs/autogluon  && \
+    cd autogluon && ./full_install.sh
 
-CMD ["/bin/bash", "-c", "python3 /autogluon/object-detection.py"]
+WORKDIR /autogluon 
+
+ARG PYTHON_FILE
+
+ENTRYPOINT ["python3", "/autogluon/sample.py"]
