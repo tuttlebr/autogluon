@@ -26,7 +26,7 @@ services:
         - MXNET=${MXNET}
         - EXPERIMENT_TYPE=image-classification
       labels:
-        - "com.example.cuda=${CUDA_COMPAT}"
+        - "com.example.cuda=${CUDA_VERSION}"
         - "com.example.cudnn=${CUDNN_COMPAT}"
     deploy:
       resources:

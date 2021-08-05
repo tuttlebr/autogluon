@@ -1,4 +1,0 @@
-seaborn
-jupyter
-jupyterlab
-autogluon
