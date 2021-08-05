@@ -1,30 +1,30 @@
 import autogluon.core as ag
-from autogluon.vision import ImagePredictor
+from autogluon.vision import ObjectDetector
 
-from logging import info, basicConfig
+url = "https://autogluon.s3.amazonaws.com/datasets/tiny_motorbike.zip"
+dataset_train = ObjectDetector.Dataset.from_voc(url, splits="trainval")
 
-basicConfig(format="%(asctime)s %(message)s")
-
-train_dataset, _, test_dataset = ImagePredictor.Dataset.from_folders(
-    "https://autogluon.s3.amazonaws.com/datasets/shopee-iet.zip"
-)
-info(train_dataset)
-
-predictor = ImagePredictor()
-
-predictor.fit(train_dataset, hyperparameters={"epochs": 2})
-fit_result = predictor.fit_summary()
-info(
-    "Top-1 train acc: %.3f, val acc: %.3f"
-    % (fit_result["train_acc"], fit_result["valid_acc"])
+time_limit = 60 * 30  # at most 0.5 hour
+detector = ObjectDetector()
+hyperparameters = {"epochs": 5, "batch_size": 8}
+detector.fit(
+    dataset_train,
+    time_limit=time_limit,
+    hyperparameters=hyperparameters,
 )
 
-image_path = test_dataset.iloc[0]["image"]
-result = predictor.predict(image_path)
-info(result)
+dataset_test = ObjectDetector.Dataset.from_voc(url, splits="test")
 
-proba = predictor.predict_proba(image_path)
-info(proba)
+test_map = detector.evaluate(dataset_test)
+print("mAP on test dataset: {}".format(test_map[1][-1]))
 
-bulk_result = predictor.predict(test_dataset)
-info(bulk_result)
+image_path = dataset_test.iloc[0]["image"]
+result = detector.predict(image_path)
+print(result)
+
+bulk_result = detector.predict(dataset_test)
+print(bulk_result)
+
+savefile = "detector.ag"
+detector.save(savefile)
+new_detector = ObjectDetector.load(savefile)
