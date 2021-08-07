@@ -1,21 +1,42 @@
-# 0.2.0-rapids0.19-cuda10.2-framework-ubuntu18.04-py3.7
-#  ^          ^        ^    ^          ^          ^
-#  |          |        |    type       |          python version
-#  |          |        |               |
-#  |          |        cuda version    |
-#  |          |                        |
-#  |          RAPIDS version           linux version
-#  |
-#  AutoGluon version
-
 version: "3.9"
 services:
   autogluon:
     image: tuttlebr/autogluon:rapids-cuda${CUDA_VERSION}
+    entrypoint: ["python3", "/autogluon/sample.py"]
     volumes:
       - type: bind
         source: ${PYTHON_FILE}
         target: /autogluon/sample.py
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+      args:
+        - BASE_IMAGE_ARG=nvcr.io/nvidia/cuda:${CUDA_VERSION}-${CUDNN_VERSION}-${BUILD_TYPE}-${BASE_OS}
+        - PYTHON_FILE=${PYTHON_FILE}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+  autogluon-notebook:
+    image: tuttlebr/autogluon:rapids-cuda${CUDA_VERSION}
+    entrypoint:
+      [
+        "jupyter",
+        "lab",
+        "--notebook-dir=/autogluon",
+        "--ip=0.0.0.0",
+        "--no-browser",
+        "--allow-root",
+        "--ServerApp.token=''",
+        "--ServerApp.password=''",
+      ]
+    volumes:
+      - type: bind
+        source: ${VOLUME_BIND}
+        target: /autogluon
     ports:
       - "8888:8888"
     build:
@@ -28,6 +49,6 @@ services:
       resources:
         reservations:
           devices:
-          - driver: nvidia
-            count: 1
-            capabilities: [gpu]
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
